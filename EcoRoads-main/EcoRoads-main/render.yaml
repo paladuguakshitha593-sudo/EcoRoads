@@ -1,0 +1,24 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repository.
+# Creates ONE free web service serving the API (/api/...) and the dashboard (/).
+# Optional later (Environment tab): ECOROADS_EDGE_DOWNLOAD_URL if the edge zip is hosted elsewhere.
+services:
+  - type: web
+    name: ecoroads
+    runtime: docker
+    plan: free
+    region: singapore            # closest Render region to India
+    dockerfilePath: ./ecoroads-cloud/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/ping       # DB-free, so health checks don't wake the database
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL            # paste your Neon connection string when asked
+        sync: false
+      - key: ECOROADS_ADMIN_KEY      # needed to register municipalities (Render generates it)
+        generateValue: true
+      - key: ECOROADS_INGEST_KEY     # vehicles must send this (Render generates it)
+        generateValue: true
+      - key: GEMINI_API_KEY          # optional: Google AI Studio key for Gemini repair tickets
+        sync: false
+      - key: ECOROADS_TICKET_MIN_DETECTIONS   # detections of one pothole before a ticket is raised
+        value: "3"
